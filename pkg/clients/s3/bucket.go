@@ -34,6 +34,7 @@ type BucketClient interface {
 	CreateBucketRequest(input *s3.CreateBucketInput) s3.CreateBucketRequest
 	DeleteBucketRequest(input *s3.DeleteBucketInput) s3.DeleteBucketRequest
 	PutBucketEncryptionRequest(input *s3.PutBucketEncryptionInput) s3.PutBucketEncryptionRequest
+	PutBucketVersioningRequest(input *s3.PutBucketVersioningInput) s3.PutBucketVersioningRequest
 }
 
 // NewVpcClient returns a new client using AWS credentials as JSON encoded data.
@@ -79,6 +80,19 @@ func GeneratePutBucketEncryptionInput(name string, s v1beta1.BucketParameters) *
 		})
 	}
 	return bei
+}
+
+func GeneratePutBucketVersioningInput(name string, s v1beta1.BucketParameters) *s3.PutBucketVersioningInput {
+	if s.VersioningConfiguration == nil {
+		return nil
+	}
+	return &s3.PutBucketVersioningInput{
+		Bucket: aws.String(name),
+		VersioningConfiguration: &s3.VersioningConfiguration{
+			MFADelete: s3.MFADelete(aws.StringValue(s.VersioningConfiguration.MFADelete)),
+			Status:    s3.BucketVersioningStatus(aws.StringValue(s.VersioningConfiguration.Status)),
+		},
+	}
 }
 
 // IsNotFound helper function to test for ErrCodeNoSuchEntityException error

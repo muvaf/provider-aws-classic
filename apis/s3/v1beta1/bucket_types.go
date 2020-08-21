@@ -66,6 +66,10 @@ type BucketParameters struct {
 	// in the Amazon Simple Storage Service Developer Guide.
 	// +optional
 	ServerSideEncryptionConfiguration *ServerSideEncryptionConfiguration `json:"serverSideEncryptionConfiguration,omitempty"`
+
+	// Container for setting the versioning state.
+	// +optional
+	VersioningConfiguration *VersioningConfiguration `json:"versioningConfiguration,omitempty"`
 }
 
 // ServerSideEncryptionConfiguration specifies the default server-side-encryption configuration.
@@ -114,6 +118,21 @@ type ServerSideEncryptionByDefault struct {
 	// Server-side encryption algorithm to use for the default encryption.
 	// Options are AES256 or aws:kms
 	SSEAlgorithm string `json:"sseAlgorithm"`
+}
+
+// VersioningConfiguration describes the versioning state of an Amazon S3 bucket. For more information,
+// see PUT Bucket versioning (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTVersioningStatus.html)
+// in the Amazon Simple Storage Service API Reference.
+type VersioningConfiguration struct {
+	// MFADelete specifies whether MFA delete is enabled in the bucket versioning configuration.
+	// This element is only returned if the bucket has been configured with MFA
+	// delete. If the bucket has never been so configured, this element is not returned.
+	// +kubebuilder:validation:Enum=Enabled;Disabled
+	MFADelete *string `json:"mfaDelete"`
+
+	// Status is the desired versioning state of the bucket.
+	// +kubebuilder:validation:Enum=Enabled;Suspended
+	Status *string `json:"status"`
 }
 
 // BucketObservation is observation of Bucket properties.

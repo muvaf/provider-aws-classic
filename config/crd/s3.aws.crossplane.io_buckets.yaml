@@ -218,6 +218,29 @@ spec:
                   required:
                   - rules
                   type: object
+                versioningConfiguration:
+                  description: Container for setting the versioning state.
+                  properties:
+                    mfaDelete:
+                      description: MFADelete specifies whether MFA delete is enabled
+                        in the bucket versioning configuration. This element is only
+                        returned if the bucket has been configured with MFA delete.
+                        If the bucket has never been so configured, this element is
+                        not returned.
+                      enum:
+                      - Enabled
+                      - Disabled
+                      type: string
+                    status:
+                      description: Status is the desired versioning state of the bucket.
+                      enum:
+                      - Enabled
+                      - Suspended
+                      type: string
+                  required:
+                  - mfaDelete
+                  - status
+                  type: object
               type: object
             providerRef:
               description: ProviderReference specifies the provider that will be used
