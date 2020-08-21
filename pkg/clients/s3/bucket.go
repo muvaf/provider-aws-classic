@@ -42,6 +42,9 @@ type BucketClient interface {
 
 	PutBucketAccelerateConfigurationRequest(input *s3.PutBucketAccelerateConfigurationInput) s3.PutBucketAccelerateConfigurationRequest
 	GetBucketAccelerateConfigurationRequest(input *s3.GetBucketAccelerateConfigurationInput) s3.GetBucketAccelerateConfigurationRequest
+
+	PutBucketCorsRequest(input *s3.PutBucketCorsInput) s3.PutBucketCorsRequest
+	GetBucketCorsRequest(input *s3.GetBucketCorsInput) s3.GetBucketCorsRequest
 }
 
 // NewVpcClient returns a new client using AWS credentials as JSON encoded data.
@@ -110,6 +113,23 @@ func GenerateAccelerateConfigurationInput(name string, s v1beta1.BucketParameter
 		Bucket:                  aws.String(name),
 		AccelerateConfiguration: &s3.AccelerateConfiguration{Status: s3.BucketAccelerateStatus(s.AccelerateConfiguration.Status)},
 	}
+}
+
+func GeneratePutBucketCorsInput(name string, s v1beta1.BucketParameters) *s3.PutBucketCorsInput {
+	if s.CORSConfiguration == nil {
+		return nil
+	}
+	bci := &s3.PutBucketCorsInput{CORSConfiguration: &s3.CORSConfiguration{}}
+	for _, cors := range s.CORSConfiguration.CORSRules {
+		bci.CORSConfiguration.CORSRules = append(bci.CORSConfiguration.CORSRules, s3.CORSRule{
+			AllowedHeaders: cors.AllowedHeaders,
+			AllowedMethods: cors.AllowedMethods,
+			AllowedOrigins: cors.AllowedOrigins,
+			ExposeHeaders:  cors.ExposeHeaders,
+			MaxAgeSeconds:  cors.MaxAgeSeconds,
+		})
+	}
+	return bci
 }
 
 // IsNotFound helper function to test for ErrCodeNoSuchEntityException error

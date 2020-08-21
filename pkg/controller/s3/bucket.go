@@ -171,6 +171,11 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 			return managed.ExternalUpdate{}, errors.Wrap(err, "cannot put accelerate configuration")
 		}
 	}
+	if cr.Spec.ForProvider.CORSConfiguration != nil {
+		if _, err := e.client.PutBucketCorsRequest(s3.GeneratePutBucketCorsInput(meta.GetExternalName(cr), cr.Spec.ForProvider)).Send(ctx); err != nil {
+			return managed.ExternalUpdate{}, errors.Wrap(err, "cannot put bucket cors")
+		}
+	}
 	return managed.ExternalUpdate{}, nil
 }
 
