@@ -126,6 +126,14 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 	if _, err := e.client.HeadBucketRequest(&awss3.HeadBucketInput{Bucket: aws.String(meta.GetExternalName(cr))}).Send(ctx); err != nil {
 		return managed.ExternalObservation{}, errors.Wrap(resource.Ignore(s3.IsNotFound, err), errHead)
 	}
+	//enc, err := e.client.GetBucketEncryptionRequest(&awss3.GetBucketEncryptionInput{Bucket: aws.String(meta.GetExternalName(cr))}).Send(ctx)
+	//if err != nil {
+	//	return managed.ExternalObservation{}, errors.Wrap(err, "cannot get bucket encryption")
+	//}
+	//vc, err := e.client.GetBucketVersioningRequest(&awss3.GetBucketVersioningInput{Bucket: aws.String(meta.GetExternalName(cr))}).Send(ctx)
+	//if err != nil {
+	//	return managed.ExternalObservation{}, errors.Wrap(err, "cannot get bucket versioning")
+	//}
 	return managed.ExternalObservation{
 		ResourceExists:   true,
 		ResourceUpToDate: true,
@@ -156,6 +164,11 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 	if cr.Spec.ForProvider.VersioningConfiguration != nil {
 		if _, err := e.client.PutBucketVersioningRequest(s3.GeneratePutBucketVersioningInput(meta.GetExternalName(cr), cr.Spec.ForProvider)).Send(ctx); err != nil {
 			return managed.ExternalUpdate{}, errors.Wrap(err, "cannot put bucket versioning")
+		}
+	}
+	if cr.Spec.ForProvider.AccelerateConfiguration != nil {
+		if _, err := e.client.PutBucketAccelerateConfigurationRequest(s3.GenerateAccelerateConfigurationInput(meta.GetExternalName(cr), cr.Spec.ForProvider)).Send(ctx); err != nil {
+			return managed.ExternalUpdate{}, errors.Wrap(err, "cannot put accelerate configuration")
 		}
 	}
 	return managed.ExternalUpdate{}, nil

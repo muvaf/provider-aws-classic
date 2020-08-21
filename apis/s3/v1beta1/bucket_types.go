@@ -67,9 +67,16 @@ type BucketParameters struct {
 	// +optional
 	ServerSideEncryptionConfiguration *ServerSideEncryptionConfiguration `json:"serverSideEncryptionConfiguration,omitempty"`
 
-	// Container for setting the versioning state.
+	// VersioningConfiguration describes the versioning state of an Amazon S3 bucket.
 	// +optional
 	VersioningConfiguration *VersioningConfiguration `json:"versioningConfiguration,omitempty"`
+
+	// AccelerateConfiguration configures the transfer acceleration state for an
+	// Amazon S3 bucket. For more information, see Amazon S3 Transfer Acceleration
+	// (https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
+	// in the Amazon Simple Storage Service Developer Guide.
+	// +optional
+	AccelerateConfiguration *AccelerateConfiguration `json:"accelerateConfiguration,omitempty"`
 }
 
 // ServerSideEncryptionConfiguration specifies the default server-side-encryption configuration.
@@ -120,9 +127,7 @@ type ServerSideEncryptionByDefault struct {
 	SSEAlgorithm string `json:"sseAlgorithm"`
 }
 
-// VersioningConfiguration describes the versioning state of an Amazon S3 bucket. For more information,
-// see PUT Bucket versioning (https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTVersioningStatus.html)
-// in the Amazon Simple Storage Service API Reference.
+// VersioningConfiguration describes the versioning state of an Amazon S3 bucket.
 type VersioningConfiguration struct {
 	// MFADelete specifies whether MFA delete is enabled in the bucket versioning configuration.
 	// This element is only returned if the bucket has been configured with MFA
@@ -133,6 +138,16 @@ type VersioningConfiguration struct {
 	// Status is the desired versioning state of the bucket.
 	// +kubebuilder:validation:Enum=Enabled;Suspended
 	Status *string `json:"status"`
+}
+
+// AccelerateConfiguration configures the transfer acceleration state for an
+// Amazon S3 bucket. For more information, see Amazon S3 Transfer Acceleration
+// (https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
+// in the Amazon Simple Storage Service Developer Guide.
+type AccelerateConfiguration struct {
+	// Status specifies the transfer acceleration status of the bucket.
+	// +kubebuilder:validation:Enum=Enabled;Suspended
+	Status string `json:"status"`
 }
 
 // BucketObservation is observation of Bucket properties.

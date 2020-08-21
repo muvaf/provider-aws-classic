@@ -33,8 +33,15 @@ type BucketClient interface {
 	HeadBucketRequest(input *s3.HeadBucketInput) s3.HeadBucketRequest
 	CreateBucketRequest(input *s3.CreateBucketInput) s3.CreateBucketRequest
 	DeleteBucketRequest(input *s3.DeleteBucketInput) s3.DeleteBucketRequest
+
 	PutBucketEncryptionRequest(input *s3.PutBucketEncryptionInput) s3.PutBucketEncryptionRequest
+	GetBucketEncryptionRequest(input *s3.GetBucketEncryptionInput) s3.GetBucketEncryptionRequest
+
 	PutBucketVersioningRequest(input *s3.PutBucketVersioningInput) s3.PutBucketVersioningRequest
+	GetBucketVersioningRequest(input *s3.GetBucketVersioningInput) s3.GetBucketVersioningRequest
+
+	PutBucketAccelerateConfigurationRequest(input *s3.PutBucketAccelerateConfigurationInput) s3.PutBucketAccelerateConfigurationRequest
+	GetBucketAccelerateConfigurationRequest(input *s3.GetBucketAccelerateConfigurationInput) s3.GetBucketAccelerateConfigurationRequest
 }
 
 // NewVpcClient returns a new client using AWS credentials as JSON encoded data.
@@ -92,6 +99,16 @@ func GeneratePutBucketVersioningInput(name string, s v1beta1.BucketParameters) *
 			MFADelete: s3.MFADelete(aws.StringValue(s.VersioningConfiguration.MFADelete)),
 			Status:    s3.BucketVersioningStatus(aws.StringValue(s.VersioningConfiguration.Status)),
 		},
+	}
+}
+
+func GenerateAccelerateConfigurationInput(name string, s v1beta1.BucketParameters) *s3.PutBucketAccelerateConfigurationInput {
+	if s.AccelerateConfiguration == nil {
+		return nil
+	}
+	return &s3.PutBucketAccelerateConfigurationInput{
+		Bucket:                  aws.String(name),
+		AccelerateConfiguration: &s3.AccelerateConfiguration{Status: s3.BucketAccelerateStatus(s.AccelerateConfiguration.Status)},
 	}
 }
 
