@@ -39,10 +39,10 @@ var (
 
 // S3Bucket type metadata.
 var (
-	S3BucketKind             = reflect.TypeOf(Bucket{}).Name()
-	S3BucketGroupKind        = schema.GroupKind{Group: Group, Kind: S3BucketKind}.String()
-	S3BucketKindAPIVersion   = "s3bucket" + "." + SchemeGroupVersion.String()
-	S3BucketGroupVersionKind = SchemeGroupVersion.WithKind(S3BucketKind)
+	BucketKind             = reflect.TypeOf(Bucket{}).Name()
+	BucketGroupKind        = schema.GroupKind{Group: Group, Kind: BucketKind}.String()
+	BucketKindAPIVersion   = BucketKind + "." + SchemeGroupVersion.String()
+	BucketGroupVersionKind = SchemeGroupVersion.WithKind(BucketKind)
 )
 
 func init() {

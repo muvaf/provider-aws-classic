@@ -129,6 +129,42 @@ spec:
             forProvider:
               description: BucketParameters are parameters for configuring the calls
                 made to AWS Bucket API.
+              properties:
+                acl:
+                  description: The canned ACL to apply to the bucket.
+                  enum:
+                  - private
+                  - public-read
+                  - public-read-write
+                  - authenticated-read
+                  type: string
+                grantFullControl:
+                  description: Allows grantee the read, write, read ACP, and write
+                    ACP permissions on the bucket.
+                  type: string
+                grantRead:
+                  description: Allows grantee to list the objects in the bucket.
+                  type: string
+                grantReadAcp:
+                  description: Allows grantee to read the bucket ACL.
+                  type: string
+                grantWrite:
+                  description: Allows grantee to create, overwrite, and delete any
+                    object in the bucket.
+                  type: string
+                grantWriteAcp:
+                  description: Allows grantee to write the ACL for the applicable
+                    bucket.
+                  type: string
+                locationConstraint:
+                  description: Specifies the Region where the bucket will be created.
+                    If you don't specify a Region, the bucket is created in the US
+                    East (N. Virginia) Region (us-east-1).
+                  type: string
+                objectLockEnabledForBucket:
+                  description: Specifies whether you want S3 Object Lock to be enabled
+                    for the new bucket.
+                  type: boolean
               type: object
             providerRef:
               description: ProviderReference specifies the provider that will be used

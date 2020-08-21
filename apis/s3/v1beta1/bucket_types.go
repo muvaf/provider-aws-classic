@@ -23,6 +23,41 @@ import (
 
 // BucketParameters are parameters for configuring the calls made to AWS Bucket API.
 type BucketParameters struct {
+
+	// The canned ACL to apply to the bucket.
+	// +kubebuilder:validation:Enum=private;public-read;public-read-write;authenticated-read
+	// +optional
+	ACL *string `json:"acl,omitempty"`
+
+	// Specifies the Region where the bucket will be created. If you don't specify
+	// a Region, the bucket is created in the US East (N. Virginia) Region (us-east-1).
+	// +optional
+	LocationConstraint *string `json:"locationConstraint,omitempty"`
+
+	// Allows grantee the read, write, read ACP, and write ACP permissions on the
+	// bucket.
+	// +optional
+	GrantFullControl *string `json:"grantFullControl,omitempty"`
+
+	// Allows grantee to list the objects in the bucket.
+	// +optional
+	GrantRead *string `json:"grantRead,omitempty"`
+
+	// Allows grantee to read the bucket ACL.
+	// +optional
+	GrantReadACP *string `json:"grantReadAcp,omitempty"`
+
+	// Allows grantee to create, overwrite, and delete any object in the bucket.
+	// +optional
+	GrantWrite *string `json:"grantWrite,omitempty"`
+
+	// Allows grantee to write the ACL for the applicable bucket.
+	// +optional
+	GrantWriteACP *string `json:"grantWriteAcp,omitempty"`
+
+	// Specifies whether you want S3 Object Lock to be enabled for the new bucket.
+	// +optional
+	ObjectLockEnabledForBucket *bool `json:"objectLockEnabledForBucket,omitempty"`
 }
 
 // BucketObservation is observation of Bucket properties.

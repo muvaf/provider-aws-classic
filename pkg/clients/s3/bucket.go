@@ -1,0 +1,73 @@
+/*
+Copyright 2019 The Crossplane Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package s3
+
+import (
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws/awserr"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/crossplane/provider-aws/apis/s3/v1beta1"
+
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+
+	awsclients "github.com/crossplane/provider-aws/pkg/clients"
+)
+
+type BucketClient interface {
+	HeadBucketRequest(input *s3.HeadBucketInput) s3.HeadBucketRequest
+	CreateBucketRequest(input *s3.CreateBucketInput) s3.CreateBucketRequest
+	DeleteBucketRequest(input *s3.DeleteBucketInput) s3.DeleteBucketRequest
+}
+
+// NewVpcClient returns a new client using AWS credentials as JSON encoded data.
+func NewClient(ctx context.Context, credentials []byte, region string, auth awsclients.AuthMethod) (BucketClient, error) {
+	cfg, err := auth(ctx, credentials, awsclients.DefaultSection, region)
+	if cfg == nil {
+		return nil, err
+	}
+	return s3.New(*cfg), nil
+}
+
+func GenerateCreateBucketInput(name string, s v1beta1.BucketParameters) *s3.CreateBucketInput {
+	cbi := &s3.CreateBucketInput{
+		ACL:                        s3.BucketCannedACL(aws.StringValue(s.ACL)),
+		Bucket:                     aws.String(name),
+		GrantFullControl:           s.GrantFullControl,
+		GrantRead:                  s.GrantRead,
+		GrantReadACP:               s.GrantReadACP,
+		GrantWrite:                 s.GrantWrite,
+		GrantWriteACP:              s.GrantWriteACP,
+		ObjectLockEnabledForBucket: s.ObjectLockEnabledForBucket,
+	}
+	if len(awsclients.StringValue(s.LocationConstraint)) != 0 {
+		cbi.CreateBucketConfiguration = &s3.CreateBucketConfiguration{LocationConstraint: s3.BucketLocationConstraint(awsclients.StringValue(s.LocationConstraint))}
+	}
+	return cbi
+}
+
+// IsNotFound helper function to test for ErrCodeNoSuchEntityException error
+func IsNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	if bucketErr, ok := err.(awserr.Error); ok && bucketErr.Code() == s3.ErrCodeNoSuchBucket {
+		return true
+	}
+	return false
+}
