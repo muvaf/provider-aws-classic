@@ -45,6 +45,9 @@ type BucketClient interface {
 
 	PutBucketCorsRequest(input *s3.PutBucketCorsInput) s3.PutBucketCorsRequest
 	GetBucketCorsRequest(input *s3.GetBucketCorsInput) s3.GetBucketCorsRequest
+
+	PutBucketWebsiteRequest(input *s3.PutBucketWebsiteInput) s3.PutBucketWebsiteRequest
+	GetBucketWebsiteRequest(input *s3.GetBucketWebsiteInput) s3.GetBucketWebsiteRequest
 }
 
 // NewVpcClient returns a new client using AWS credentials as JSON encoded data.
@@ -119,7 +122,10 @@ func GeneratePutBucketCorsInput(name string, s v1beta1.BucketParameters) *s3.Put
 	if s.CORSConfiguration == nil {
 		return nil
 	}
-	bci := &s3.PutBucketCorsInput{CORSConfiguration: &s3.CORSConfiguration{}}
+	bci := &s3.PutBucketCorsInput{
+		Bucket:            aws.String(name),
+		CORSConfiguration: &s3.CORSConfiguration{},
+	}
 	for _, cors := range s.CORSConfiguration.CORSRules {
 		bci.CORSConfiguration.CORSRules = append(bci.CORSConfiguration.CORSRules, s3.CORSRule{
 			AllowedHeaders: cors.AllowedHeaders,
@@ -130,6 +136,46 @@ func GeneratePutBucketCorsInput(name string, s v1beta1.BucketParameters) *s3.Put
 		})
 	}
 	return bci
+}
+
+func GeneratePutBucketWebsiteInput(name string, s v1beta1.BucketParameters) *s3.PutBucketWebsiteInput {
+	if s.WebsiteConfiguration == nil {
+		return nil
+	}
+	wi := &s3.PutBucketWebsiteInput{
+		Bucket:               aws.String(name),
+		WebsiteConfiguration: &s3.WebsiteConfiguration{},
+	}
+	if s.WebsiteConfiguration.ErrorDocument != nil {
+		wi.WebsiteConfiguration.ErrorDocument = &s3.ErrorDocument{Key: aws.String(s.WebsiteConfiguration.ErrorDocument.Key)}
+	}
+	if s.WebsiteConfiguration.IndexDocument != nil {
+		wi.WebsiteConfiguration.IndexDocument = &s3.IndexDocument{Suffix: aws.String(s.WebsiteConfiguration.IndexDocument.Suffix)}
+	}
+	if s.WebsiteConfiguration.RedirectAllRequestsTo != nil {
+		wi.WebsiteConfiguration.RedirectAllRequestsTo = &s3.RedirectAllRequestsTo{
+			HostName: aws.String(s.WebsiteConfiguration.RedirectAllRequestsTo.HostName),
+			Protocol: s3.Protocol(s.WebsiteConfiguration.RedirectAllRequestsTo.Protocol),
+		}
+	}
+	for _, rule := range s.WebsiteConfiguration.RoutingRules {
+		rr := &s3.RoutingRule{
+			Redirect: &s3.Redirect{
+				HostName:             rule.Redirect.HostName,
+				HttpRedirectCode:     rule.Redirect.HttpRedirectCode,
+				Protocol:             s3.Protocol(rule.Redirect.Protocol),
+				ReplaceKeyPrefixWith: rule.Redirect.ReplaceKeyPrefixWith,
+				ReplaceKeyWith:       rule.Redirect.ReplaceKeyWith,
+			},
+		}
+		if rule.Condition != nil {
+			rr.Condition = &s3.Condition{
+				HttpErrorCodeReturnedEquals: rule.Condition.HttpErrorCodeReturnedEquals,
+				KeyPrefixEquals:             rule.Condition.KeyPrefixEquals,
+			}
+		}
+	}
+	return wi
 }
 
 // IsNotFound helper function to test for ErrCodeNoSuchEntityException error

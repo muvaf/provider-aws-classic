@@ -176,6 +176,11 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 			return managed.ExternalUpdate{}, errors.Wrap(err, "cannot put bucket cors")
 		}
 	}
+	if cr.Spec.ForProvider.WebsiteConfiguration != nil {
+		if _, err := e.client.PutBucketWebsiteRequest(s3.GeneratePutBucketWebsiteInput(meta.GetExternalName(cr), cr.Spec.ForProvider)).Send(ctx); err != nil {
+			return managed.ExternalUpdate{}, errors.Wrap(err, "cannot put bucket website")
+		}
+	}
 	return managed.ExternalUpdate{}, nil
 }
 
