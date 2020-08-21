@@ -33,6 +33,7 @@ type BucketClient interface {
 	HeadBucketRequest(input *s3.HeadBucketInput) s3.HeadBucketRequest
 	CreateBucketRequest(input *s3.CreateBucketInput) s3.CreateBucketRequest
 	DeleteBucketRequest(input *s3.DeleteBucketInput) s3.DeleteBucketRequest
+	PutBucketEncryptionRequest(input *s3.PutBucketEncryptionInput) s3.PutBucketEncryptionRequest
 }
 
 // NewVpcClient returns a new client using AWS credentials as JSON encoded data.
@@ -61,12 +62,31 @@ func GenerateCreateBucketInput(name string, s v1beta1.BucketParameters) *s3.Crea
 	return cbi
 }
 
+func GeneratePutBucketEncryptionInput(name string, s v1beta1.BucketParameters) *s3.PutBucketEncryptionInput {
+	if s.ServerSideEncryptionConfiguration == nil {
+		return nil
+	}
+	bei := &s3.PutBucketEncryptionInput{
+		Bucket:                            aws.String(name),
+		ServerSideEncryptionConfiguration: &s3.ServerSideEncryptionConfiguration{},
+	}
+	for _, rule := range s.ServerSideEncryptionConfiguration.Rules {
+		bei.ServerSideEncryptionConfiguration.Rules = append(bei.ServerSideEncryptionConfiguration.Rules, s3.ServerSideEncryptionRule{
+			ApplyServerSideEncryptionByDefault: &s3.ServerSideEncryptionByDefault{
+				KMSMasterKeyID: rule.ApplyServerSideEncryptionByDefault.KMSMasterKeyID,
+				SSEAlgorithm:   s3.ServerSideEncryption(rule.ApplyServerSideEncryptionByDefault.SSEAlgorithm),
+			},
+		})
+	}
+	return bei
+}
+
 // IsNotFound helper function to test for ErrCodeNoSuchEntityException error
 func IsNotFound(err error) bool {
 	if err == nil {
 		return false
 	}
-	if bucketErr, ok := err.(awserr.Error); ok && bucketErr.Code() == s3.ErrCodeNoSuchBucket {
+	if bucketErr, ok := err.(awserr.Error); ok && bucketErr.Code() == "NotFound" {
 		return true
 	}
 	return false

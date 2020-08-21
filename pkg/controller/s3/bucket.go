@@ -144,9 +144,14 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
-	_, ok := mg.(*v1beta1.Bucket)
+	cr, ok := mg.(*v1beta1.Bucket)
 	if !ok {
 		return managed.ExternalUpdate{}, errors.New(errUnexpectedObject)
+	}
+	if cr.Spec.ForProvider.ServerSideEncryptionConfiguration != nil {
+		if _, err := e.client.PutBucketEncryptionRequest(s3.GeneratePutBucketEncryptionInput(meta.GetExternalName(cr), cr.Spec.ForProvider)).Send(ctx); err != nil {
+			return managed.ExternalUpdate{}, errors.Wrap(err, "cannot put bucket encryption")
+		}
 	}
 	return managed.ExternalUpdate{}, nil
 }
