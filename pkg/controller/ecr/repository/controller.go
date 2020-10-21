@@ -51,7 +51,6 @@ const (
 	errListTags            = "failed to list tags for the repository resource"
 	errDelete              = "failed to delete the repository resource"
 	errSpecUpdate          = "cannot update spec of repository custom resource"
-	errStatusUpdate        = "cannot update status of repository custom resource"
 	errUpdateScan          = "failed to update scan config for repository resource"
 	errUpdateMutability    = "failed to update mutability for repository resource"
 	errPatchCreationFailed = "cannot create a patch object"
@@ -151,15 +150,8 @@ func (e *external) Create(ctx context.Context, mgd resource.Managed) (managed.Ex
 	}
 
 	cr.Status.SetConditions(runtimev1alpha1.Creating())
-	if err := e.kube.Status().Update(ctx, cr); err != nil {
-		return managed.ExternalCreation{}, errors.Wrap(err, errStatusUpdate)
-	}
-
 	_, err := e.client.CreateRepositoryRequest(ecr.GenerateCreateRepositoryInput(meta.GetExternalName(cr), &cr.Spec.ForProvider)).Send(ctx)
-	if err != nil {
-		return managed.ExternalCreation{}, errors.Wrap(err, errCreate)
-	}
-	return managed.ExternalCreation{}, errors.Wrap(e.kube.Update(ctx, cr), errSpecUpdate)
+	return managed.ExternalCreation{}, errors.Wrap(err, errCreate)
 }
 
 func (e *external) Update(ctx context.Context, mgd resource.Managed) (managed.ExternalUpdate, error) {
