@@ -87,7 +87,7 @@ func postObserve(_ context.Context, cr *svcapitypes.GlobalTable, resp *svcsdk.De
 	return obs, nil
 }
 
-func isUpToDate(cr *svcapitypes.GlobalTable, obj *svcsdk.DescribeGlobalTableOutput) bool {
+func isUpToDate(cr *svcapitypes.GlobalTable, obj *svcsdk.DescribeGlobalTableOutput) (bool, error) {
 	existing := make([]string, len(obj.GlobalTableDescription.ReplicationGroup))
 	for i, r := range obj.GlobalTableDescription.ReplicationGroup {
 		existing[i] = aws.StringValue(r.RegionName)
@@ -98,7 +98,7 @@ func isUpToDate(cr *svcapitypes.GlobalTable, obj *svcsdk.DescribeGlobalTableOutp
 		desired[i] = aws.StringValue(r.RegionName)
 	}
 	sort.Strings(desired)
-	return cmp.Equal(existing, desired)
+	return cmp.Equal(existing, desired), nil
 }
 
 type updater struct {

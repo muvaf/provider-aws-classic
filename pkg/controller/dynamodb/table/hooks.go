@@ -261,14 +261,14 @@ func createPatch(in *svcsdk.DescribeTableOutput, target *svcapitypes.TableParame
 	return patch, nil
 }
 
-func isUpToDate(cr *svcapitypes.Table, resp *svcsdk.DescribeTableOutput) bool {
+func isUpToDate(cr *svcapitypes.Table, resp *svcsdk.DescribeTableOutput) (bool, error) {
 	patch, err := createPatch(resp, &cr.Spec.ForProvider)
 	if err != nil {
-		return false
+		return false, err
 	}
 	return cmp.Equal(&svcapitypes.TableParameters{}, patch,
 		cmpopts.IgnoreTypes(&xpv1.Reference{}, &xpv1.Selector{}, []xpv1.Reference{}),
-		cmpopts.IgnoreFields(svcapitypes.TableParameters{}, "Region", "Tags", "GlobalSecondaryIndexes", "KeySchema", "LocalSecondaryIndexes", "CustomTableParameters"))
+		cmpopts.IgnoreFields(svcapitypes.TableParameters{}, "Region", "Tags", "GlobalSecondaryIndexes", "KeySchema", "LocalSecondaryIndexes", "CustomTableParameters")), nil
 }
 
 type updateClient struct {
