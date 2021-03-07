@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	typewriter "github.com/muvaf/typewriter/pkg/traverser"
 	"github.com/muvaf/typewriter/pkg/wrapper"
 	"go/types"
 	"golang.org/x/tools/go/packages"
+	"io/ioutil"
+	"os"
+	"os/exec"
 )
 
 const (
@@ -52,11 +56,20 @@ func Run(p1, p2 *types.Package) error {
 	if err != nil {
 		return err
 	}
-
-	file, err := fl.Wrap("newpkg", obj)
+	file, err := fl.Wrap("table", obj)
 	if err != nil {
 		return err
 	}
-	fmt.Print(file)
+	fb := bytes.NewBuffer(file)
+	cmd := exec.Command("goimports")
+	cmd.Stdin = fb
+	outb := &bytes.Buffer{}
+	cmd.Stdout = outb
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile("/Users/monus/go/src/github.com/crossplane/provider-aws/pkg/controller/dynamodb/table/newgen.go", outb.Bytes(), os.ModePerm); err != nil {
+		return err
+	}
 	return nil
 }
