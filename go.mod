@@ -2,6 +2,8 @@ module github.com/crossplane/provider-aws
 
 go 1.13
 
+replace github.com/muvaf/typewriter => /Users/monus/go/src/github.com/muvaf/typewriter
+
 require (
 	github.com/aws/aws-sdk-go v1.37.4
 	github.com/aws/aws-sdk-go-v2 v0.23.0
@@ -9,14 +11,15 @@ require (
 	github.com/crossplane/crossplane-tools v0.0.0-20201201125637-9ddc70edfd0d
 	github.com/evanphx/json-patch v4.9.0+incompatible
 	github.com/go-ini/ini v1.46.0
-	github.com/google/go-cmp v0.5.2
+	github.com/google/go-cmp v0.5.4
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mitchellh/copystructure v1.0.0
+	github.com/muvaf/typewriter v0.0.0-20210221103750-f6d67626c141
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/gomega v1.10.2
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.6.1
-	golang.org/x/tools v0.0.0-20200916195026-c9a70fc28ce3 // indirect
+	golang.org/x/tools v0.0.0-20200916195026-c9a70fc28ce3
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	k8s.io/api v0.20.1
